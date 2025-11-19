@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One8 Ecosystem | Interactive Brand Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Premium Dark (Gold/Black/Teal) 
+         Rationale: Reflects the premium, athletic, and bold nature of the One8 brand. 
+         Gold represents luxury (Commune), Teal represents energy/sport (Puma), Black is the unifying sophisticated base. -->
+    
+    <style>
+        /* Custom Scrollbar for sleek look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #171717; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #404040; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24; 
+        }
+
+        /* Chart Container Constraints per instructions */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Constraint for large screens */
+            height: 300px;    /* Base height */
+            max-height: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Interactive Card Hover Effects */
+        .interactive-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .interactive-card:hover {
+            transform: translateY(-5px);
+            border-color: #fbbf24; /* Amber-400 */
+            box-shadow: 0 10px 30px -10px rgba(251, 191, 36, 0.2);
+        }
+        
+        .nav-btn.active {
+            background-color: #fbbf24;
+            color: #000;
+            font-weight: bold;
+        }
+    </style>
+    
+    <!-- Application Structure Plan: 
+         The app is designed as a "Executive Dashboard" rather than a linear report.
+         1. Header: Brand Statement.
+         2. Navigation (Pillars): Quick switching between Overview, Sportswear, Hospitality, and Fragrances.
+         3. Dynamic Main Stage: The central area updates based on the selected pillar.
+            - Overview: High-level metrics and Timeline.
+            - Verticals: Specific product data, location maps (simulated), and category breakdowns.
+         4. Data Section: Always-visible key performance indicators.
+         Rationale: This structure allows users to "drill down" into the specific business arm they are interested in, 
+         mirroring how an investor or brand manager would view the portfolio. -->
+</head>
+<body class="bg-neutral-950 text-neutral-200 font-sans selection:bg-amber-500 selection:text-black antialiased flex flex-col min-h-screen">
+
+    <!-- Header / Hero Section -->
+    <header class="bg-neutral-900 border-b border-neutral-800 sticky top-0 z-50 backdrop-blur-md bg-opacity-90">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <!-- Text-based Logo representation -->
+                <div class="w-10 h-10 bg-amber-400 text-black font-bold flex items-center justify-center rounded text-xl tracking-tighter">18</div>
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-wide">one8 <span class="text-neutral-500 font-normal">| ECOSYSTEM REPORT</span></h1>
+                </div>
+            </div>
+            <button onclick="resetView()" class="text-xs uppercase tracking-widest text-amber-400 hover:text-amber-300 transition-colors font-semibold">
+                Dashboard Reset
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Wrapper -->
+    <main class="flex-grow container mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Sidebar: Navigation & Context -->
+        <aside class="lg:col-span-3 space-y-6">
+            
+            <!-- Context Box -->
+            <div class="bg-neutral-900 p-6 rounded-xl border border-neutral-800 shadow-lg">
+                <h3 class="text-amber-400 font-bold uppercase text-xs tracking-wider mb-3">Report Context</h3>
+                <p class="text-sm text-neutral-400 leading-relaxed">
+                    This interactive dashboard synthesizes data on the <strong>One8</strong> brand ecosystem, founded by Virat Kohli. Explore the performance and reach of its four key pillars: Sportswear, Hospitality, Fragrances, and Innerwear.
+                </p>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="bg-neutral-900 p-4 rounded-xl border border-neutral-800 shadow-lg">
+                <h3 class="text-white font-bold text-sm mb-4 px-2">BUSINESS PILLARS</h3>
+                <ul class="space-y-2">
+                    <li>
+                        <button onclick="updateView('overview')" id="nav-overview" class="nav-btn w-full text-left px-4 py-3 rounded-lg text-sm transition-colors active bg-neutral-800 text-neutral-300 hover:bg-neutral-800">
+                            <span>⊞</span> &nbsp; Brand Overview
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="updateView('sportswear')" id="nav-sportswear" class="nav-btn w-full text-left px-4 py-3 rounded-lg text-sm transition-colors text-neutral-400 hover:bg-neutral-800 hover:text-white">
+                            <span>⚡</span> &nbsp; Sportswear (Puma)
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="updateView('hospitality')" id="nav-hospitality" class="nav-btn w-full text-left px-4 py-3 rounded-lg text-sm transition-colors text-neutral-400 hover:bg-neutral-800 hover:text-white">
+                            <span>🍽️</span> &nbsp; Commune (Hospitality)
+                        </button>
+                    </li>
+                    <li>
+                        <button onclick="updateView('fragrance')" id="nav-fragrance" class="nav-btn w-full text-left px-4 py-3 rounded-lg text-sm transition-colors text-neutral-400 hover:bg-neutral-800 hover:text-white">
+                            <span>💧</span> &nbsp; Fragrances
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Quick Stats (Static for Sidebar) -->
+            <div class="bg-gradient-to-br from-amber-900/20 to-neutral-900 p-6 rounded-xl border border-amber-900/30">
+                <h4 class="text-amber-400 text-xs font-bold uppercase mb-1">Brand Reach</h4>
+                <div class="text-3xl font-bold text-white mb-1">264M+</div>
+                <div class="text-xs text-neutral-400">Social Followers (Instagram)</div>
+                <div class="mt-4 h-1 w-full bg-neutral-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-amber-500 w-[85%]"></div>
+                </div>
+                <p class="text-[10px] text-neutral-500 mt-2 text-right">High Engagement Rate</p>
+            </div>
+        </aside>
+
+        <!-- Center/Right: Dynamic Content Area -->
+        <section class="lg:col-span-9 space-y-6">
+            
+            <!-- Dynamic Header for Section -->
+            <div id="section-header" class="flex flex-col md:flex-row md:items-end justify-between pb-4 border-b border-neutral-800 fade-in">
+                <div>
+                    <h2 id="page-title" class="text-3xl font-bold text-white mb-2">Ecosystem Overview</h2>
+                    <p id="page-desc" class="text-neutral-400 max-w-2xl">
+                        A holistic view of the One8 brand expansion from a celebrity endorsement to a diversified lifestyle conglomerate.
+                    </p>
+                </div>
+                <div id="action-area" class="mt-4 md:mt-0">
+                    <!-- Dynamic Actions appear here -->
+                </div>
+            </div>
+
+            <!-- Dynamic Content Grid -->
+            <div id="content-area" class="grid grid-cols-1 md:grid-cols-2 gap-6 fade-in">
+                <!-- Content injected via JS -->
+            </div>
+
+            <!-- Visualization Row -->
+            <div class="bg-neutral-900 rounded-xl border border-neutral-800 p-6 shadow-lg">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 id="chart-title" class="text-lg font-semibold text-white">Growth Trajectory</h3>
+                    <div class="flex gap-2">
+                        <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                        <span class="text-xs text-neutral-400">Active Metrics</span>
+                    </div>
+                </div>
+                
+                <!-- Chart Container - Strictly Constrained -->
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
+                </div>
+                <p id="chart-caption" class="text-center text-xs text-neutral-500 mt-4">
+                    Fig 1.0: Estimated timeline of major vertical launches and brand expansion milestones.
+                </p>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-neutral-800 bg-neutral-950 py-8 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-neutral-500 text-sm">
+                &copy; 2025 One8 Ecosystem Report. Generated for Analysis. <br>
+                <span class="text-xs text-neutral-600">Data aggregated from public sources (Tracxn, Economic Times, Official Websites).</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Visualization & Content Choices:
+         1. OVERVIEW: Uses a Line Chart to show the timeline of brand maturity. Cards show the 4 pillars.
+            - Goal: Establish the breadth of the brand.
+         2. SPORTSWEAR: Uses a Doughnut Chart (simulated) to show category mix (Shoes vs Apparel).
+            - Goal: Show the dominance of the Puma collaboration.
+         3. COMMUNE: Uses a Bar Chart to visualize the geographic footprint (Number of outlets per city).
+            - Goal: Highlight the physical expansion of the restaurant chain.
+         4. FRAGRANCE: Uses an interactive grid of scent profiles.
+            - Goal: Demonstrate product variety without complex charts.
+         Confirmation: NO SVG graphics used (Chart.js Canvas used). NO Mermaid JS used.
+    -->
+
+    <script>
+        // --- Data Store ---
+        const brandData = {
+            overview: {
+                title: "Ecosystem Overview",
+                desc: "One8 is an unfunded company based in India, founded in 2017 by Virat Kohli. It operates as a premium lifestyle brand bridging the gap between sports and lifestyle.",
+                cards: [
+                    { title: "Sportswear", val: "Global Partnership", sub: "w/ PUMA", icon: "⚡", color: "text-teal-400" },
+                    { title: "Hospitality", val: "8+ Cities", sub: "One8 Commune", icon: "🍽️", color: "text-amber-400" },
+                    { title: "Fragrance", val: "6+ Variants", sub: "EDP & Body Spray", icon: "💧", color: "text-blue-400" },
+                    { title: "Innerwear", val: "Premium Range", sub: "w/ Lux Industries", icon: "👕", color: "text-indigo-400" }
+                ],
+                chartType: 'line',
+                chartData: {
+                    labels: ['2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'],
+                    datasets: [{
+                        label: 'Brand Touchpoints & Locations',
+                        data: [1, 5, 12, 18, 25, 35, 42, 50, 58],
+                        borderColor: '#fbbf24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                chartTitle: "Brand Expansion Timeline (Cumulative Touchpoints)"
+            },
+            sportswear: {
+                title: "Sportswear & Athleisure",
+                desc: "The One8 x Puma collaboration is a cornerstone of the brand, contributing significantly to Puma India's revenue (approx. 10% in FY19). Focuses on sneakers, activewear, and accessories.",
+                cards: [
+                    { title: "Key Partner", val: "PUMA", sub: "German Sportswear Giant", icon: "🤝", color: "text-red-400" },
+                    { title: "Top Category", val: "Footwear", sub: "Sneakers & Trainers", icon: "👟", color: "text-orange-400" },
+                    { title: "Target", val: "Gen Z / Millennials", sub: "Active Lifestyle", icon: "🎯", color: "text-green-400" },
+                    { title: "Style", val: "Minimalist", sub: "Gold/Black/White", icon: "✨", color: "text-gray-200" }
+                ],
+                chartType: 'doughnut',
+                chartData: {
+                    labels: ['Footwear', 'Apparel', 'Accessories', 'Kids'],
+                    datasets: [{
+                        data: [45, 35, 15, 5],
+                        backgroundColor: ['#fbbf24', '#14b8a6', '#6366f1', '#f472b6'],
+                        borderWidth: 0
+                    }]
+                },
+                chartTitle: "Estimated Product Category Mix"
+            },
+            hospitality: {
+                title: "One8 Commune (Dining)",
+                desc: "A chain of casual dining restobars that emphasize 'Commune Sensibility' - bringing people together. Locations feature distinct decor suited to their cities.",
+                cards: [
+                    { title: "Top Location", val: "Juhu, Mumbai", sub: "Bungalow Heritage", icon: "🏖️", color: "text-yellow-200" },
+                    { title: "Cuisine", val: "Global", sub: "Virat's Favorites", icon: "🥘", color: "text-orange-300" },
+                    { title: "Vibe", val: "Premium Casual", sub: "Music & Dining", icon: "🎵", color: "text-purple-400" },
+                    { title: "Rating", val: "4.5/5", sub: "Avg. User Review", icon: "⭐", color: "text-yellow-500" }
+                ],
+                chartType: 'bar',
+                chartData: {
+                    labels: ['Delhi NCR', 'Mumbai', 'Bangalore', 'Pune', 'Kolkata', 'Jaipur'],
+                    datasets: [{
+                        label: 'Outlets',
+                        data: [3, 2, 1, 1, 1, 1],
+                        backgroundColor: '#fbbf24',
+                        borderRadius: 4
+                    }]
+                },
+                chartTitle: "Geographic Footprint (Number of Outlets)"
+            },
+            fragrance: {
+                title: "Fragrances & Grooming",
+                desc: "A collection of Eau De Parfums and deodorants designed for the modern active man. Variants include Aqua, Willow, Intense, and Noir.",
+                cards: [
+                    { title: "Best Seller", val: "One8 INTENSE", sub: "Eau De Parfum", icon: "🔥", color: "text-red-500" },
+                    { title: "Entry Price", val: "₹200+", sub: "Body Sprays", icon: "🏷️", color: "text-green-400" },
+                    { title: "Variants", val: "6 Core Scents", sub: "Aqua, Pure, Fresh...", icon: "🧪", color: "text-blue-300" },
+                    { title: "Type", val: "No Gas", sub: "Deodorant Tech", icon: "💨", color: "text-gray-400" }
+                ],
+                chartType: 'bar', // Using horizontal bar for scent profile
+                chartData: {
+                    labels: ['Citrus (Fresh)', 'Woody (Intense)', 'Aquatic (Aqua)', 'Musk (Noir)', 'Spicy (Gold)'],
+                    datasets: [{
+                        label: 'Scent Intensity (1-10)',
+                        data: [6, 9, 5, 8, 7],
+                        backgroundColor: ['#a3e635', '#78350f', '#0ea5e9', '#171717', '#d97706'],
+                        indexAxis: 'y'
+                    }]
+                },
+                chartTitle: "Fragrance Profile Intensity Guide"
+            }
+        };
+
+        // --- State ---
+        let currentChart = null;
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateView('overview');
+        });
+
+        // --- Core Logic ---
+        function updateView(sectionId) {
+            // 1. Update Nav State
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active', 'bg-amber-400', 'text-black'));
+            const activeBtn = document.getElementById(`nav-${sectionId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                // Remove hover classes that conflict with active state
+                activeBtn.classList.remove('text-neutral-300', 'hover:bg-neutral-800'); 
+            }
+
+            // 2. Update Text Content
+            const data = brandData[sectionId];
+            document.getElementById('page-title').innerText = data.title;
+            document.getElementById('page-desc').innerText = data.desc;
+            document.getElementById('chart-title').innerText = data.chartTitle;
+            document.getElementById('chart-caption').innerText = `Fig 1.0: Data visualization for ${data.title}`;
+
+            // 3. Render Cards
+            const contentArea = document.getElementById('content-area');
+            contentArea.innerHTML = ''; // Clear existing
+            
+            data.cards.forEach(card => {
+                const cardHtml = `
+                    <div class="interactive-card bg-neutral-900 p-5 rounded-xl border border-neutral-800 cursor-pointer group">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-xs text-neutral-500 uppercase tracking-wider font-semibold">${card.title}</p>
+                                <h4 class="text-2xl font-bold text-white mt-1 group-hover:text-amber-400 transition-colors">${card.val}</h4>
+                                <p class="text-sm text-neutral-400 mt-1">${card.sub}</p>
+                            </div>
+                            <div class="text-2xl ${card.color} opacity-80 bg-neutral-800 p-2 rounded-lg group-hover:scale-110 transition-transform">
+                                ${card.icon}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                contentArea.innerHTML += cardHtml;
+            });
+
+            // 4. Render Chart
+            renderChart(data.chartType, data.chartData);
+        }
+
+        function renderChart(type, data) {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            
+            // Destroy previous chart if exists
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            // Common Options
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false, // Critical for container constraint
+                plugins: {
+                    legend: {
+                        display: type !== 'bar', // Hide legend for simple bars
+                        labels: { color: '#a3a3a3', font: { family: 'sans-serif' } }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(23, 23, 23, 0.9)',
+                        titleColor: '#fbbf24',
+                        bodyColor: '#fff',
+                        borderColor: '#404040',
+                        borderWidth: 1,
+                        padding: 10
+                    }
+                },
+                scales: {
+                    y: {
+                        display: type !== 'doughnut',
+                        grid: { color: '#262626' },
+                        ticks: { color: '#737373' }
+                    },
+                    x: {
+                        display: type !== 'doughnut',
+                        grid: { display: false },
+                        ticks: { color: '#737373' }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                }
+            };
+
+            // Create Chart
+            currentChart = new Chart(ctx, {
+                type: type,
+                data: data,
+                options: commonOptions
+            });
+        }
+
+        function resetView() {
+            updateView('overview');
+        }
+    </script>
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</body>
+</html>
