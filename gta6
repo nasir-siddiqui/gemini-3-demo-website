@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA VI | The Next Chapter Begins</title>
+    <meta name="description" content="Welcome to Leonida. Grand Theft Auto VI is coming. Pre-order now or watch the trailer.">
+    
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="GTA VI - Own the Night">
+    <meta property="og:description" content="The next evolution of the open-world experience.">
+    <meta property="og:image" content="./assets/hero.jpg">
+
+    <!-- Styles -->
+    <<style>
+
+/* --- Variables & Reset --- */
+:root {
+    --color-bg: #0a0a0a;
+    --color-text: #ffffff;
+    --color-primary: #ff0099; /* Vice City Pink */
+    --color-secondary: #00d4ff; /* Vice City Blue */
+    --color-surface: #1a1a1a;
+    --color-border: #333;
+    
+    --font-main: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-display: 'Impact', sans-serif;
+    
+    --spacing-sm: 1rem;
+    --spacing-md: 2rem;
+    --spacing-lg: 4rem;
+    
+    --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Snappy easing */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-main);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* --- Utilities & Accessibility --- */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.narrow-container { max-width: 600px; }
+.section-padding { padding: var(--spacing-lg) 0; }
+.bg-dark { background-color: var(--color-surface); }
+.sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+}
+
+:focus-visible {
+    outline: 3px solid var(--color-secondary);
+    outline-offset: 4px;
+}
+
+/* --- Buttons & Interactive Elements --- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    text-decoration: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 4px;
+    transition: var(--transition);
+    cursor: pointer;
+    font-size: 1rem;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* Primary Button Hover Fill Animation */
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+    border: 2px solid var(--color-primary);
+}
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: white;
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+.btn-primary:hover { color: var(--color-primary); }
+.btn-primary:hover::before { left: 0; }
+
+/* Outline Button Hover Fill Animation */
+.btn-outline {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+}
+.btn-outline:hover {
+    background: white;
+    color: black;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+}
+
+.full-width { width: 100%; justify-content: center; }
+
+/* Wobble Effect on Buttons */
+.wobble-hover:hover {
+    animation: wobble 1s ease-in-out infinite;
+}
+
+@keyframes wobble {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-2px) rotate(-1deg); }
+    75% { transform: translateY(-2px) rotate(1deg); }
+}
+
+/* --- Header --- */
+#main-header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 1rem 0;
+    z-index: 1000;
+    transition: background-color 0.3s ease, padding 0.3s ease;
+}
+
+#main-header.scrolled {
+    background-color: rgba(0, 0, 0, 0.95);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.5rem 0;
+    backdrop-filter: blur(10px);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    letter-spacing: 2px;
+}
+.highlight { color: var(--color-primary); }
+
+#main-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+#main-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
+}
+
+/* Nav Link Underline Animation */
+#main-nav a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -5px;
+    left: 0;
+    background-color: var(--color-secondary);
+    transition: width 0.3s ease;
+}
+#main-nav a:hover::after { width: 100%; }
+#main-nav .nav-cta { color: var(--color-primary); }
+#main-nav .nav-cta::after { background-color: var(--color-primary); }
+
+.mobile-menu-toggle { display: none; background: none; border: none; cursor: pointer; }
+.hamburger {
+    display: block; width: 25px; height: 3px; background: white;
+    position: relative; transition: var(--transition);
+}
+.hamburger::before, .hamburger::after {
+    content: ''; position: absolute; width: 25px; height: 3px; background: white;
+    left: 0; transition: var(--transition);
+}
+.hamburger::before { top: -8px; }
+.hamburger::after { top: 8px; }
+
+/* --- Hero & Glitch Effect --- */
+.hero-section {
+    height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-image: url('./assets/hero.jpg'); 
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
+}
+
+/* CRT Scanline Effect */
+.scanlines {
+    position: absolute; inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Glitch Animation for H1 */
+.glitch-text {
+    font-family: var(--font-display);
+    font-size: clamp(5rem, 12vw, 12rem);
+    line-height: 1;
+    margin-bottom: 1rem;
+    position: relative;
+    color: white;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-bg); /* Matches background to hide original */
+    background: transparent;
+}
+
+.glitch-text::before {
+    left: 2px;
+    text-shadow: -2px 0 var(--color-primary);
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+    left: -2px;
+    text-shadow: -2px 0 var(--color-secondary);
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+    0% { clip: rect(30px, 9999px, 10px, 0); }
+    5% { clip: rect(80px, 9999px, 90px, 0); }
+    10% { clip: rect(10px, 9999px, 50px, 0); }
+    15% { clip: rect(40px, 9999px, 20px, 0); }
+    20% { clip: rect(70px, 9999px, 60px, 0); }
+    100% { clip: rect(50px, 9999px, 80px, 0); }
+}
+
+@keyframes glitch-anim2 {
+    0% { clip: rect(10px, 9999px, 80px, 0); }
+    5% { clip: rect(50px, 9999px, 20px, 0); }
+    10% { clip: rect(90px, 9999px, 10px, 0); }
+    15% { clip: rect(30px, 9999px, 60px, 0); }
+    100% { clip: rect(60px, 9999px, 40px, 0); }
+}
+
+.hero-content h2 {
+    font-size: clamp(1.2rem, 2vw, 2rem);
+    margin-bottom: 2rem;
+    font-weight: 300;
+    opacity: 0; /* Handled by JS/Animation */
+}
+
+.cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; opacity: 0; }
+
+/* --- Features --- */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.feature-card {
+    background: var(--color-surface);
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hover Reveal Gradient */
+.feature-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--color-secondary);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+}
+
+.icon-box { 
+    font-size: 3rem; 
+    margin-bottom: 1rem; 
+    transition: transform 0.4s ease;
+}
+.feature-card:hover .icon-box { transform: scale(1.2) rotate(5deg); }
+
+/* --- Media Gallery --- */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.gallery-item {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: none;
+    padding: 0;
+    overflow: hidden;
+    cursor: zoom-in;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+/* Overlay Icon Animation */
+.overlay-icon {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 2rem;
+    color: white;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    width: 60px; height: 60px;
+    display: flex; justify-content: center; align-items: center;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gallery-item:hover img { transform: scale(1.1); filter: brightness(0.7); }
+.gallery-item:hover .overlay-icon { transform: translate(-50%, -50%) scale(1); }
+
+/* --- Pre-Order --- */
+.pricing-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.price-card {
+    background: var(--color-surface);
+    padding: 2rem;
+    border-radius: 8px;
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.highlight-card {
+    border: 1px solid var(--color-primary);
+    position: relative;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 0, 153, 0.2);
+}
+.highlight-card:hover {
+    box-shadow: 0 0 40px rgba(255, 0, 153, 0.4);
+}
+
+.card-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-primary);
+    padding: 0.25rem 1rem;
+    font-size: 0.8rem;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+/* Badge Pulse Animation */
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 153, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 0, 153, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 153, 0); }
+}
+
+.card-header { text-align: center; margin-bottom: 2rem; }
+.price { font-size: 2.5rem; font-weight: bold; }
+.card-features { list-style: none; margin-bottom: 2rem; flex-grow: 1; }
+.card-features li { padding: 0.5rem 0; border-bottom: 1px solid #333; text-align: center; }
+
+/* --- Newsletter --- */
+.bg-gradient {
+    background: linear-gradient(135deg, var(--color-surface), #1a0a1a);
+    background-size: 200% 200%;
+    animation: gradientMove 10s ease infinite;
+}
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+form { margin-top: 2rem; }
+.input-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+input[type="email"] {
+    flex: 1; padding: 1rem; background: #000;
+    border: 1px solid #444; color: white; border-radius: 4px;
+    transition: border-color 0.3s;
+}
+input[type="email"]:focus { border-color: var(--color-secondary); outline: none; }
+.checkbox-group { display: flex; align-items: start; gap: 0.5rem; font-size: 0.9rem; color: #aaa; }
+
+/* --- Footer --- */
+footer { background: black; padding: 3rem 0; border-top: 1px solid #333; }
+.footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; }
+.footer-col h4 { margin-bottom: 1rem; color: var(--color-primary); }
+.footer-col ul { list-style: none; }
+.footer-col a { color: #aaa; text-decoration: none; transition: color 0.3s; }
+.footer-col a:hover { color: white; text-decoration: underline; }
+
+/* --- Scroll & Entrance Animations --- */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Staggered Delays */
+.staggered.visible {
+    animation-delay: calc(var(--order) * 0.1s);
+}
+
+.fade-up {
+    animation: fadeUp 1s ease-out forwards;
+    opacity: 0;
+    animation-delay: var(--delay, 0s);
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal Animation */
+.modal-content {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform: scale(0.9);
+    opacity: 0;
+}
+.modal[aria-hidden="false"] .modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* --- Mobile Media Queries --- */
+@media (max-width: 768px) {
+    .mobile-menu-toggle { display: block; }
+    #main-nav {
+        position: absolute; top: 100%; left: 0; right: 0;
+        background: black; padding: 1rem;
+        transform: scaleY(0); transform-origin: top;
+        transition: transform 0.3s ease;
+    }
+    #main-nav.active { transform: scaleY(1); border-bottom: 1px solid var(--color-primary); }
+    #main-nav ul { flex-direction: column; gap: 1rem; text-align: center; }
+    .hero-content h1 { font-size: 4rem; }
+    .highlight-card { transform: none; }
+    .input-group { flex-direction: column; }
+    
+    /* Disable wobble on mobile to prevent layout shift issues */
+    .wobble-hover:hover { animation: none; }
+}
+
+/* Modals and Lightbox core styles (same as before, just cleaner) */
+.modal, .lightbox {
+    position: fixed; inset: 0; z-index: 2000;
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.modal[aria-hidden="false"], .lightbox[aria-hidden="false"] { opacity: 1; pointer-events: all; }
+.modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); }
+.modal-content { position: relative; z-index: 2001; width: 90%; max-width: 800px; }
+.video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
+.video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.close-modal, .close-lightbox {
+    position: absolute; top: -40px; right: 0;
+    background: none; border: none; color: white; font-size: 2rem; cursor: pointer;
+}
+.lightbox { z-index: 3000; background: rgba(0,0,0,0.95); }
+.lightbox img { max-width: 90%; max-height: 90%; box-shadow: 0 0 20px rgba(0,0,0,0.5); }</style>
+    
+    <!-- Preload Hero Image -->
+    <link rel="preload" as="image" href="./assets/hero.jpg">
+</head>
+<body>
+
+    <!-- Accessibility Skip Link -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Header -->
+    <header id="main-header">
+        <div class="container header-content">
+            <a href="#" class="logo" aria-label="GTA VI Home">
+                <span class="logo-text">GTA <span class="highlight">VI</span></span>
+            </a>
+            
+            <button class="mobile-menu-toggle" aria-expanded="false" aria-controls="main-nav">
+                <span class="sr-only">Menu</span>
+                <span class="hamburger"></span>
+            </button>
+
+            <nav id="main-nav">
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#world">World</a></li>
+                    <li><a href="#media">Media</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#pre-order" class="nav-cta">Pre-order</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section id="hero" class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="scanlines"></div> <!-- New Scanline Effect -->
+            <div class="container hero-content">
+                <!-- data-text is crucial for the CSS glitch effect -->
+                <h1 class="glitch-text fade-up" data-text="GTA VI" style="--delay: 0.2s">GTA VI</h1>
+                <h2 class="fade-up" style="--delay: 0.4s">The next chapter begins. <br>Explore the city. Own the night.</h2>
+                <div class="cta-group fade-up" style="--delay: 0.6s">
+                    <a href="#pre-order" class="btn btn-primary wobble-hover">Pre-order Now</a>
+                    <button id="open-trailer" class="btn btn-outline wobble-hover" aria-haspopup="dialog">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        Watch Trailer
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="section-padding">
+            <div class="container">
+                <h2 class="section-title animate-on-scroll">Game Features</h2>
+                <div class="features-grid">
+                    <!-- Feature 1 -->
+                    <article class="feature-card animate-on-scroll staggered" style="--order: 1">
+                        <div class="icon-box">📍</div>
+                        <h3>Open World</h3>
+                        <p>Experience the largest, most immersive evolution of the Grand Theft Auto series yet.</p>
+                    </article>
+                    <!-- Feature 2 -->
+                    <article class="feature-card animate-on-scroll staggered" style="--order: 2">
+                        <div class="icon-box">⛈️</div>
+                        <h3>Dynamic Weather</h3>
+                        <p>Next-gen weather systems that impact gameplay, driving, and visibility in real-time.</p>
+                    </article>
+                    <!-- Feature 3 -->
+                    <article class="feature-card animate-on-scroll staggered" style="--order: 3">
+                        <div class="icon-box">💰</div>
+                        <h3>Live Heists</h3>
+                        <p>Plan and execute complex heists with seamless co-op integration and multiple outcomes.</p>
+                    </article>
+                    <!-- Feature 4 -->
+                    <article class="feature-card animate-on-scroll staggered" style="--order: 4">
+                        <div class="icon-box">🧠</div>
+                        <h3>Next-Gen AI</h3>
+                        <p>NPCs with distinct daily routines and reactions, making the city feel truly alive.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Media Gallery -->
+        <section id="media" class="section-padding bg-dark">
+            <div class="container">
+                <h2 class="section-title animate-on-scroll">Screenshots</h2>
+                <div class="gallery-grid">
+                    <button class="gallery-item animate-on-scroll staggered" style="--order: 1" aria-label="View screenshot 1">
+                        <img src="./assets/gallery-1.jpg" alt="Car chase in Vice City" loading="lazy">
+                        <span class="overlay-icon">🔍</span>
+                    </button>
+                    <button class="gallery-item animate-on-scroll staggered" style="--order: 2" aria-label="View screenshot 2">
+                        <img src="./assets/gallery-2.jpg" alt="Sunset over the ocean" loading="lazy">
+                        <span class="overlay-icon">🔍</span>
+                    </button>
+                    <button class="gallery-item animate-on-scroll staggered" style="--order: 3" aria-label="View screenshot 3">
+                        <img src="./assets/gallery-3.jpg" alt="Club interior lighting" loading="lazy">
+                        <span class="overlay-icon">🔍</span>
+                    </button>
+                    <button class="gallery-item animate-on-scroll staggered" style="--order: 4" aria-label="View screenshot 4">
+                        <img src="./assets/gallery-4.jpg" alt="Character closeup" loading="lazy">
+                        <span class="overlay-icon">🔍</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pre-Order Section -->
+        <section id="pre-order" class="section-padding">
+            <div class="container">
+                <h2 class="section-title animate-on-scroll">Pre-order Now</h2>
+                <div class="pricing-grid">
+                    <!-- Standard Edition -->
+                    <div class="price-card animate-on-scroll staggered" style="--order: 1">
+                        <div class="card-header">
+                            <h3>Standard Edition</h3>
+                            <p class="price">$69.99</p>
+                        </div>
+                        <ul class="card-features">
+                            <li>Base Game</li>
+                            <li>Story Mode Access</li>
+                            <li>Standard Online Access</li>
+                        </ul>
+                        <a href="#" class="btn btn-outline full-width" data-analytics="buy-standard">Select Standard</a>
+                    </div>
+                    
+                    <!-- Deluxe Edition -->
+                    <div class="price-card highlight-card animate-on-scroll staggered" style="--order: 2">
+                        <div class="card-badge pulse-animation">Best Value</div>
+                        <div class="card-header">
+                            <h3>Deluxe Edition</h3>
+                            <p class="price">$99.99</p>
+                        </div>
+                        <ul class="card-features">
+                            <li>Base Game</li>
+                            <li><strong>3 Days Early Access</strong></li>
+                            <li>Exclusive Vehicle Pack</li>
+                            <li>1,000,000 Online Cash</li>
+                        </ul>
+                        <a href="#" class="btn btn-primary full-width" data-analytics="buy-deluxe">Select Deluxe</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter -->
+        <section id="contact" class="section-padding bg-gradient">
+            <div class="container narrow-container animate-on-scroll">
+                <h2>Stay Updated</h2>
+                <p>Join the mailing list for exclusive reveals and developer updates.</p>
+                
+                <form id="newsletter-form" novalidate>
+                    <div class="input-group">
+                        <label for="email" class="sr-only">Email Address</label>
+                        <input type="email" id="email" placeholder="Enter your email" required>
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="gdpr" required>
+                        <label for="gdpr">I agree to receive marketing communications. (GDPR Compliant)</label>
+                    </div>
+                    <div class="form-message" aria-live="polite"></div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-col">
+                <h4>Explore</h4>
+                <ul>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Media</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Social</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Twitter">X</a>
+                    <a href="#" aria-label="YouTube">YT</a>
+                    <a href="#" aria-label="Instagram">IG</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <p>&copy; 2025 Rockstar Games. All rights reserved.</p>
+                <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Video Modal -->
+    <div id="video-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-overlay" tabindex="-1" data-close></div>
+        <div class="modal-content fade-scale-in">
+            <h2 id="modal-title" class="sr-only">GTA VI Trailer</h2>
+            <button class="close-modal" aria-label="Close Modal" data-close>&times;</button>
+            <div class="video-wrapper">
+                <iframe id="youtube-frame" width="560" height="315" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox" aria-hidden="true" role="dialog">
+        <button class="close-lightbox" aria-label="Close Image">&times;</button>
+        <img src="" alt="" id="lightbox-img">
+    </div>
+
+    <script > 'use strict';
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    /* --- Sticky Header Logic --- */
+    const header = document.getElementById('main-header');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+
+    /* --- Mobile Menu --- */
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    const nav = document.getElementById('main-nav');
+
+    menuToggle.addEventListener('click', () => {
+        const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+        menuToggle.setAttribute('aria-expanded', !isExpanded);
+        nav.classList.toggle('active');
+    });
+
+    /* --- Advanced Scroll Animations --- */
+    const observerOptions = {
+        threshold: 0.15, // Trigger when 15% visible
+        rootMargin: "0px 0px -50px 0px"
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                
+                // Add specific delay logic if needed for non-CSS variable supported browsers
+                // But mostly handled by styles.css .staggered class
+                
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+
+    /* --- Video Modal --- */
+    const modal = document.getElementById('video-modal');
+    const openBtn = document.getElementById('open-trailer');
+    const closeElements = document.querySelectorAll('[data-close]');
+    const iframe = document.getElementById('youtube-frame');
+    // Official Trailer 1 ID (Replace when Trailer 2 drops)
+    const VIDEO_URL = "https://www.youtube.com/embed/QdBZY2fkU-0?autoplay=1&rel=0"; 
+
+    function openModal() {
+        modal.setAttribute('aria-hidden', 'false');
+        iframe.src = VIDEO_URL;
+        
+        // Wait for transition to focus
+        setTimeout(() => {
+             modal.querySelector('.close-modal').focus(); 
+        }, 100);
+        
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modal.setAttribute('aria-hidden', 'true');
+        setTimeout(() => {
+            iframe.src = ""; // Clear src after fade out to prevent sound lag
+        }, 300);
+        openBtn.focus();
+        document.body.style.overflow = '';
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openModal);
+    
+    closeElements.forEach(el => {
+        el.addEventListener('click', closeModal);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (modal.getAttribute('aria-hidden') === 'false') closeModal();
+            if (document.getElementById('lightbox').getAttribute('aria-hidden') === 'false') closeLightboxFunc();
+        }
+    });
+
+    /* --- Lightbox --- */
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const closeLightbox = document.querySelector('.close-lightbox');
+
+    function closeLightboxFunc() {
+        lightbox.setAttribute('aria-hidden', 'true');
+    }
+
+    galleryItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const img = item.querySelector('img');
+            lightboxImg.src = img.src;
+            lightboxImg.alt = img.alt;
+            lightbox.setAttribute('aria-hidden', 'false');
+            closeLightbox.focus();
+        });
+    });
+
+    closeLightbox.addEventListener('click', closeLightboxFunc);
+    
+    lightbox.addEventListener('click', (e) => {
+        if(e.target === lightbox) closeLightboxFunc();
+    });
+
+    /* --- Newsletter Form with Mock "Sending" Animation --- */
+    const form = document.getElementById('newsletter-form');
+    const messageDiv = document.querySelector('.form-message');
+    const submitBtn = form.querySelector('button');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const gdpr = document.getElementById('gdpr').checked;
+
+        if (email && gdpr) {
+            if(email.includes('@') && email.includes('.')) {
+                
+                // Simulate Loading
+                submitBtn.innerHTML = 'Sending...';
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.7';
+
+                setTimeout(() => {
+                    messageDiv.style.color = '#00d4ff';
+                    messageDiv.textContent = "Welcome to the crew. Check your inbox.";
+                    form.reset();
+                    submitBtn.innerHTML = 'SUBSCRIBE';
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                }, 1500);
+
+            } else {
+                messageDiv.style.color = 'red';
+                messageDiv.textContent = "Please enter a valid email.";
+            }
+        } else {
+            messageDiv.style.color = 'red';
+            messageDiv.textContent = "Please accept terms.";
+        }
+    });
+});</script>
+</body>
+</html>
