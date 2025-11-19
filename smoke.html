@@ -1,0 +1,202 @@
+<!-- 
+  Cinematic Smoke Background
+  - Activates on Body Hover
+  - Features fluid sine-wave motion and depth layering
+  - Optimized for performance
+-->
+
+<canvas id="smoke-bg-canvas"></canvas>
+
+<div class="content-placeholder">
+  <h1>Hover anywhere to reveal the mist</h1>
+  <p>Move your mouse outside the window to fade it out.</p>
+</div>
+
+<style>
+  body {
+    margin: 0;
+    background: #050505; /* Very dark background for contrast */
+    color: white;
+    font-family: sans-serif;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .content-placeholder {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    top: 40%;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  /* The Canvas Layer */
+  #smoke-bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; 
+    /* Start invisible/faded out */
+    opacity: 0;
+    /* Smooth fade transition for the whole effect */
+    transition: opacity 1.5s ease-in-out;
+    pointer-events: none;
+  }
+
+  /* When active class is added via JS on hover */
+  #smoke-bg-canvas.active {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  (function() {
+    const canvas = document.getElementById('smoke-bg-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+    let particles = [];
+    let isHovering = false;
+    
+    // Configuration
+    const config = {
+      color: '120, 255, 180', // Ethereal Greenish-White
+      maxParticles: 120,      // Limit for performance
+      spawnRate: 2,           // Particles per frame
+      wind: 0,                // General horizontal push
+      lift: -1.5,             // Upward speed base
+      swirlFreq: 0.02,        // How fast it snakes side to side
+      swirlAmp: 1.5           // How wide it snakes
+    };
+
+    // Responsive Resize
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Particle System
+    class SmokeParticle {
+      constructor() {
+        this.init(true);
+      }
+
+      init(resetY = false) {
+        // Randomize X position across screen
+        this.x = Math.random() * width;
+        // If resetting, start at bottom. If initiating, scatter slightly vertical for instant feel
+        this.y = resetY ? height + 50 : Math.random() * height;
+        
+        // Randomize Depth (Size & Speed)
+        // Depth factor 0.5 (far/slow) to 1.5 (close/fast)
+        this.depth = Math.random() * 1 + 0.5;
+        
+        this.vx = (Math.random() - 0.5) * 0.5; // Tiny random drift
+        this.vy = (config.lift * this.depth) * (Math.random() * 0.5 + 0.5); // Upward velocity based on depth
+        
+        this.size = (Math.random() * 50 + 60) * this.depth; // Size based on depth
+        this.life = 0; // Start invisible (fade in)
+        this.maxLife = Math.random() * 0.6 + 0.4; // Peak opacity
+        this.decay = Math.random() * 0.003 + 0.002;
+        this.phase = Math.random() * Math.PI * 2; // Random start point for swirl
+        this.age = 0;
+      }
+
+      update() {
+        this.age++;
+        
+        // Swirl Physics: Sine wave motion
+        this.x += Math.cos(this.age * config.swirlFreq + this.phase) * (config.swirlAmp * this.depth) + config.wind;
+        this.y += this.vy;
+
+        // Life Cycle: Fade in then fade out
+        if (this.age < 100) {
+          this.life += 0.01; // Fade in
+          if(this.life > this.maxLife) this.life = this.maxLife;
+        } else {
+          this.life -= this.decay; // Fade out
+        }
+      }
+
+      draw() {
+        if (this.life <= 0) return;
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen'; // Blending for glow
+        ctx.globalAlpha = this.life * 0.3; // Soft transparency
+
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+        gradient.addColorStop(0, `rgba(${config.color}, 1)`); // Core
+        gradient.addColorStop(0.6, `rgba(${config.color}, 0.2)`); // Mid
+        gradient.addColorStop(1, `rgba(${config.color}, 0)`); // Edge
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // Initialize Pool
+    // We pre-fill the array but they start invisible/off-screen or reset immediately
+    for(let i=0; i<config.maxParticles; i++) {
+      particles.push(new SmokeParticle());
+    }
+
+    // Animation Loop
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+
+        // Reset if dead or off screen
+        if (p.life <= 0 || p.y < -150) {
+          // Only respawn if hovering, otherwise let them die out naturally
+          if (isHovering) {
+             p.init(true); // Reset to bottom
+          }
+        }
+      });
+
+      requestAnimationFrame(animate);
+    }
+    
+    // Start Loop (It runs always, but particles only respawn on hover)
+    animate();
+
+    // Interaction Handlers
+    // We use a CSS class for the container fade, and a JS flag for particle spawning
+    document.body.addEventListener('mouseenter', () => {
+      isHovering = true;
+      canvas.classList.add('active');
+    });
+
+    document.body.addEventListener('mouseleave', () => {
+      isHovering = false;
+      canvas.classList.remove('active');
+    });
+
+    // Mobile/Touch Support
+    document.body.addEventListener('touchstart', () => {
+      isHovering = true;
+      canvas.classList.add('active');
+    }, {passive: true});
+    
+    document.body.addEventListener('touchend', () => {
+      // Delay fade out slightly on mobile for better feel
+      setTimeout(() => {
+        isHovering = false;
+        canvas.classList.remove('active');
+      }, 1000);
+    });
+
+  })();
+</script>
