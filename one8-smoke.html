@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One8 Style Smoke Effect</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #050505; /* Ultra-dark, nearly black background */
+            color: #ffffff;
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            overflow: hidden; /* Hide scrollbars for full immersion */
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: default;
+        }
+
+        /* The Canvas Overlay */
+        #smoke-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; 
+            pointer-events: none; 
+            opacity: 0.8;
+        }
+
+        /* Content Layout */
+        .content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 800px;
+            padding: 2rem;
+            pointer-events: none; /* Let clicks pass through text container if needed */
+        }
+
+        /* Typography mimicking luxury branding */
+        h1 {
+            font-size: 5rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            /* Gold Gradient Text */
+            background: linear-gradient(135deg, #fff 20%, #c5a059 50%, #fff 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            animation: fadeUp 1.5s ease-out forwards 0.5s;
+        }
+
+        p {
+            font-size: 1.1rem;
+            letter-spacing: 0.1em;
+            color: #aaa;
+            text-transform: uppercase;
+            font-weight: 300;
+            opacity: 0;
+            animation: fadeUp 1.5s ease-out forwards 0.8s;
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 3rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: #444;
+            text-transform: uppercase;
+            z-index: 2;
+            opacity: 0;
+            animation: fadeIn 2s ease-out forwards 1.5s;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="smoke-canvas"></canvas>
+
+    <div class="content">
+        <h1>Vogue</h1>
+        <p>Interactive Fluid Smoke</p>
+    </div>
+
+    <div class="hint">Move cursor to disturb</div>
+
+    <script>
+        const canvas = document.getElementById('smoke-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let particles = [];
+        
+        // "Puff" Image Brush (Performance Optimization)
+        // Instead of drawing a gradient 100 times a frame, we draw a pre-rendered image.
+        const puffSize = 150;
+        const puffCanvas = document.createElement('canvas');
+        puffCanvas.width = puffSize;
+        puffCanvas.height = puffSize;
+        const puffCtx = puffCanvas.getContext('2d');
+
+        // Create the soft smoke texture
+        const gradient = puffCtx.createRadialGradient(puffSize/2, puffSize/2, 0, puffSize/2, puffSize/2, puffSize/2);
+        // One8/Luxury style: Smoky White/Grey with a hint of warm gold in the alpha falloff
+        gradient.addColorStop(0, 'rgba(200, 200, 200, 0.15)'); 
+        gradient.addColorStop(0.4, 'rgba(180, 180, 180, 0.05)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        
+        puffCtx.fillStyle = gradient;
+        puffCtx.fillRect(0, 0, puffSize, puffSize);
+
+        // State
+        const mouse = { x: -1000, y: -1000, lastX: -1000, lastY: -1000, active: false };
+        
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Mouse Interaction
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            mouse.active = true;
+            
+            // Calculate velocity of mouse for emission rate
+            const dx = mouse.x - mouse.lastX;
+            const dy = mouse.y - mouse.lastY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Emit more particles if moving fast
+            if (dist > 1) {
+                // High Density: spawn significantly more particles per pixel moved
+                const count = Math.min(30, Math.floor(dist * 2)); 
+                for (let i = 0; i < count; i++) {
+                    spawnParticle(mouse.x, mouse.y, dx * 0.1, dy * 0.1);
+                }
+            }
+
+            mouse.lastX = mouse.x;
+            mouse.lastY = mouse.y;
+        });
+
+        window.addEventListener('mouseout', () => {
+            mouse.active = false;
+            mouse.x = -1000;
+        });
+
+        class Particle {
+            constructor(x, y, vx, vy) {
+                this.x = x;
+                this.y = y;
+                
+                // Initial Velocity (influenced by mouse movement + randomness)
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 0.5;
+                
+                this.vx = vx * 0.3 + Math.cos(angle) * speed;
+                this.vy = vy * 0.3 + Math.sin(angle) * speed - 0.5; // Natural slight rise
+                
+                this.size = Math.random() * 40 + 40; // Start smaller
+                this.growth = Math.random() * 0.5 + 0.2;
+                
+                this.life = 100;
+                this.maxLife = 100;
+                
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.02;
+                
+                // Randomize tint slightly for depth (Golden/Grey mix)
+                this.tint = Math.random() > 0.8 ? 1 : 0.8; // Brightness variance
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Friction
+                this.vx *= 0.96;
+                this.vy *= 0.96;
+                
+                // Expand
+                this.size += this.growth;
+                this.rotation += this.rotSpeed;
+                
+                // Fade out
+                this.life -= 1;
+            }
+
+            draw() {
+                // Calculate Opacity based on life curve (fade in, then fade out)
+                let opacity = 0;
+                if (this.life > 80) {
+                    opacity = (100 - this.life) / 20; // Fade in
+                } else {
+                    opacity = this.life / 80; // Fade out
+                }
+                
+                // Lower global opacity slightly to blend better
+                opacity *= 0.4;
+
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                // Draw the cached puff image
+                // 'lighter' composite mode creates the glowing smoke effect when they overlap
+                ctx.globalCompositeOperation = 'lighter'; 
+                ctx.globalAlpha = opacity * this.tint;
+                
+                ctx.drawImage(puffCanvas, -this.size/2, -this.size/2, this.size, this.size);
+                
+                ctx.restore();
+            }
+        }
+
+        function spawnParticle(x, y, vx, vy) {
+            particles.push(new Particle(x, y, vx, vy));
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Ambient Smoke (Rising from bottom)
+            // One8/Luxury sites usually have a constant subtle mist
+            // Maximum density: significantly increased spawn rate
+            for (let k = 0; k < 5; k++) {
+                if (Math.random() < 0.8) {
+                    const x = Math.random() * width;
+                    const y = height + 50;
+                    spawnParticle(x, y, 0, -2);
+                }
+            }
+
+            // Update all particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.update();
+                p.draw();
+                
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Initial burst for preview
+        for(let i=0; i<60; i++) {
+            spawnParticle(window.innerWidth/2, window.innerHeight/2 + 100, (Math.random()-0.5)*5, (Math.random()-0.5)*5);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
